@@ -16,9 +16,10 @@ KDT_AI final project
 
 #### 프로그램 실행법  
  1. python 가상환경 설치 (3.9.13 설치이후)  
- 2. python -m venv (my_venv) 이용 (my_venv 는 여기서 말한 가상환경이다.)   
- 3. pip install -r requirements.txt 이용  
- 4. .env 파일 생성후 환경변수 각각등록  
+ 2. python -m venv (my_venv) 이용 (my_venv 는 여기서 말한 가상환경이다.)
+ 3. venv\Scripts\activate.bat 로 가상환경 접속    
+ 4. pip install -r requirements.txt 이용  
+ 5. .env 파일 생성후 환경변수 각각등록  
 
 #### 프로그램 읽는법
 
