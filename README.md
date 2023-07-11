@@ -1,4 +1,4 @@
-`# KDT_AI_B3
+# KDT_AI_B3
 KDT_AI final project
 
 
@@ -18,7 +18,7 @@ KDT_AI final project
  1. python 가상환경 설치 (3.9.13 설치이후)  
  2. python -m venv (my_venv) 이용 (my_venv 는 여기서 말한 가상환경이다.)   
  3. pip install -r requirements.txt 이용  
- 4. .env 파일 생성후 환경변수 각각등록  
+ 4. .env 파일 생성후 환경변수 각각등록
 
 #### 프로그램 읽는법
 

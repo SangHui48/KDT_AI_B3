@@ -163,5 +163,3 @@ cython_debug/
 *.xlsx
 my_venv
 !requirements.txt
-
-b3/*
