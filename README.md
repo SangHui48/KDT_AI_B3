@@ -33,3 +33,5 @@ KDT_AI final project
  - 가상환경  
  - 이미 들어온 url 이면 없애기  
  
+ ===
+my_venv 실행 : source my_venv/bin/activate

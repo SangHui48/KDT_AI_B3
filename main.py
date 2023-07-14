@@ -30,11 +30,14 @@ def main():
     texts = document_chunking(docs, size=1000, overlap=0)
     
     # 4. chunking 된 데이터 vector db 로 임베딩 하기 
-    db = upload_document(texts, os.getenv('DEEPLAKE_USERNAME'), 'langchain-code_jhkim')
+    db = upload_document(texts, os.getenv('DEEPLAKE_USERNAME'), 'langchain-code_pwy')
     retriever =  get_retriever(db, "cos", 100, True, 10)
     
     # 5. 원하는 질문 입력 하기 
     model, qa = get_conversation_chain("gpt-3.5-turbo", retriever)
+    # from langchain.chains.question_answering import load_qa_chain
+    # from openai import OpenAIChat
+    # qa = load_qa_chain(OpenAIChat(model_name="gpt-3.5.-turbo", temperature=0), chain_type="map_rerank", return_intermediate_steps=True)
     
     # 6. QA 시작
     chat_history = []

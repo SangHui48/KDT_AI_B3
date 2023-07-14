@@ -53,6 +53,7 @@ def get_dir_info(api_link, file_name="Git_Repository"):
             TOTAL_INFO_DICT[file_name] = content
         else:
             get_dir_info(file_api_link, file_name)
+            
 
 
 def github_api_call(web_link, make_txt_file=False):
