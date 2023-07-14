@@ -51,6 +51,7 @@ def get_dir_info(api_link, file_name="Git_Repository"):
             file_info = api_call(file_api_link)
             content = base64.b64decode(file_info['content']).decode('utf-8')
             TOTAL_INFO_DICT[file_name] = content
+            print(file_name)
         else:
             get_dir_info(file_api_link, file_name)
             
@@ -59,7 +60,8 @@ def get_dir_info(api_link, file_name="Git_Repository"):
 def github_api_call(web_link, make_txt_file=False):
     start_time = time.time() 
     user_name,repo_name = web_link.split('/')[-2:] 
-    get_dir_info(f"https://api.github.com/repos/{user_name}/{repo_name}/contents/")
+    # get_dir_info(f"https://api.github.com/repos/{user_name}/{repo_name}/contents/")
+    get_dir_info(f"https://api.github.com/repos/TheAlgorithms/Python/contents/")
 
     end_time = time.time()  # 실행 종료 시간 기록
     execution_time = end_time - start_time  # 실행 시간 계산
