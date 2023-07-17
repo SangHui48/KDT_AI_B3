@@ -1,30 +1,54 @@
+import tiktoken
 from langchain.schema import Document
-from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.text_splitter import CharacterTextSplitter
+from langchain.text_splitter import (
+    RecursiveCharacterTextSplitter,
+    Language,
+)
 
-# 도큐먼트 리스트들을 chunking 하기
-def document_chunking(docs, size, overlap=0):
-    text_splitter = CharacterTextSplitter(chunk_size=size, chunk_overlap=overlap)
-    texts = text_splitter.split_documents(docs)
-    return texts 
+def chunking_string(all_tokens , chunking_size, overlap_size):
+    tmp_idx = 0
+    sliced_lists = []
 
-# dictionary 를 도큐먼트 리스트 형식으로 바꾸기
-def document_processing(github_info_dict, make_txt_file=False):
-    docutment_list = []
-    
-    # langchain 의 Document 로 변환 
+    tmp_list = []
+    while tmp_idx <= len(all_tokens)-1:
+        if tmp_idx == 0:
+            tmp_list = all_tokens[:chunking_size]
+            tmp_idx = chunking_size-overlap_size
+        else:
+            tmp_list = all_tokens[tmp_idx:tmp_idx+chunking_size]
+            tmp_idx += chunking_size
+        sliced_lists.append(tmp_list)
+
+    return sliced_lists
+
+def dictionary_to_docs(github_info_dict, chunking_size, overlap_size, model_name):
+    ret_docs = []
     for file_name, file_content in github_info_dict.items():
-        tmp_doc = Document(
-            page_content=file_name,
-            metadata={"content":file_content}
-        )
-        
-        docutment_list.append(tmp_doc)
+        tmp_docs = []
+        if file_name.endswith(".py"):
+            py_splitter = RecursiveCharacterTextSplitter.from_language(
+            language=Language.PYTHON, chunk_size=chunking_size, chunk_overlap=overlap_size
+            )
+            tmp_docs = py_splitter.create_documents([file_content])
+        elif file_name.endswith(".js"):
+            js_splitter = RecursiveCharacterTextSplitter.from_language(
+            language=Language.JS, chunk_size=chunking_size, chunk_overlap=overlap_size)
+            tmp_docs = js_splitter.create_documents([file_content])
+        else:
+            encoding = tiktoken.encoding_for_model(model_name)
+            total_encoded = encoding.encode(file_content)
+            chunked_string = chunking_string(total_encoded, chunking_size, overlap_size)
 
-    if make_txt_file==True:
-        with open('myfile_docs.txt', 'w', encoding='utf-8') as f:
-            print(docutment_list, file=f)
+            for tmp_encoded in chunked_string:
+                tmp_doc = Document(
+                        page_content=encoding.decode(tmp_encoded),
+                        metadata={"source":file_name}
+                    )
+                tmp_docs.append(tmp_doc)
+
+            for tmp_doc in tmp_docs:
+                tmp_doc.metadata["source"] = file_name
+
+    ret_docs.extend(tmp_docs)
     
-    return docutment_list
-        
-    
+    return ret_docs

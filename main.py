@@ -1,48 +1,64 @@
-
-import os
-from validation import url_check
-from get_info_from_api import github_api_call
-from data_processing import (
-    document_processing,
-    document_chunking,
-)
-from vector_db import upload_document, get_retriever
-from question import get_conversation_chain
 from dotenv import load_dotenv
+from langchain.chat_models import ChatOpenAI
+from get_info_from_api import github_api_call
+from data_processing import dictionary_to_docs
+from langchain.memory import ConversationBufferMemory
+from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.chains import ConversationalRetrievalChain
+from vector_db import (
+    db_from_pinecone, db_from_deeplake, mmr_retriever_setting
+)
 
 load_dotenv()
+
+MODEL_NAME = "gpt-3.5-turbo-16k"
 
 def main():
     # 1. 입력받기
     github_link = input("GitHub 링크를 입력해주세요 : ")
-    while True:
-        if url_check(github_link) is True:
-            print("유효성 검사 완료 API 서치 시작")
-            break
-        else: 
-            github_link = input("유효하지 않은 GitHub 링크입니다. 다시 입력해주세요 : ")
 
-    # 2.API Info Dictionary 형식으로 받아오기
-    github_info_dict = github_api_call(github_link, make_txt_file=False)
+    # 2. 모든 데이터 "File_name" : "File_content" 형식 받아오기 
+    github_info_dict = github_api_call(github_link)
     
-    # 3. chunking 후 text processing 하기 
-    docs = document_processing(github_info_dict, make_txt_file=False)
-    texts = document_chunking(docs, size=1000, overlap=0)
-    
+    # 3. "File_content 형식 데이터" 청킹 갯수 단위로 자른후에 리스트로 변환하기
+    # 반환값 [Doc1, Doc2 ...] 
+    docs = dictionary_to_docs(
+        github_info_dict, chunking_size=1000, 
+        overlap_size=0, model_name=MODEL_NAME
+    )
+
     # 4. chunking 된 데이터 vector db 로 임베딩 하기 
-    db = upload_document(texts, os.getenv('DEEPLAKE_USERNAME'), 'langchain-code_jhkim')
-    retriever =  get_retriever(db, "cos", 100, True, 10)
+    # 임베딩 모델 및 vector db 반환 
+    embedding_model = OpenAIEmbeddings(model='text-embedding-ada-002')
+    vector_db = db_from_pinecone(docs, embedding_model)
+    
+    # 5. QA 를 위한 retriever 및 qa 세팅 하기 
+    retriever =  mmr_retriever_setting(
+        vectorstore=vector_db, 
+        fetch_num=10, k_num=100
+    )
     
     # 5. 원하는 질문 입력 하기 
-    model, qa = get_conversation_chain("gpt-3.5-turbo", retriever)
+    open_ai_model =  ChatOpenAI(model_name=MODEL_NAME)
+    memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+    qa_chain = ConversationalRetrievalChain.from_llm(
+        llm=open_ai_model,
+        memory=memory,
+        retriever=retriever,
+        get_chat_history=lambda h : h,
+    )
     
     # 6. QA 시작
-    chat_history = []
+    questions = []
+    answers = []
     while True:
         question = input("질문을 입력해주세요 : ")
-        result = qa({"question": question, "chat_history": chat_history})
-        chat_history.append((question, result["answer"]))
+        questions.append(question)
+        
+        result = qa_chain({"question": question})
+        answers.append(result["answer"])
         
         print(f"**Answer**: {result['answer']} \n")
+        
 if __name__ == "__main__":
     main()
