@@ -21,7 +21,7 @@ def chunking_string(all_tokens , chunking_size, overlap_size):
 
     return sliced_lists
 
-def dictionary_to_docs(github_info_dict, chunking_size, overlap_size, model_name):
+def dictionary_to_docs(github_info_dict, structure_content, chunking_size, overlap_size, model_name):
     ret_docs = []
     for file_name, file_content in github_info_dict.items():
         tmp_docs = []
@@ -50,5 +50,12 @@ def dictionary_to_docs(github_info_dict, chunking_size, overlap_size, model_name
                 tmp_doc.metadata["source"] = file_name
 
     ret_docs.extend(tmp_docs)
+    
+    structure_doc = Document(
+    page_content=structure_content,
+    metadata={"source":"github_folder_structure"}
+    )
+    
+    ret_docs.append(structure_doc)
     
     return ret_docs
