@@ -21,16 +21,3 @@ KDT_AI final project
  4. pip install -r requirements.txt 이용  
  5. .env 파일 생성후 환경변수 각각등록  
 
-#### 프로그램 읽는법
-
-1. main파일 에서 함수하나하나 읽기 시작  
-
-### 추후 해결방안 과제  
-
- - url 링크 유효성 검사  
- - github 폴더 트리구조 학습 방안  
- - pdf 이외에 ipynb 파일 좋게 읽을수있는 방안  
- - chat history 집어넣고 읽게하기 혹은 UI 에 표시하도록 하기   
- - 가상환경  
- - 이미 들어온 url 이면 없애기  
- 
