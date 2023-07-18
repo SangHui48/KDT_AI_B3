@@ -31,6 +31,8 @@ def main():
     # 4. chunking 된 데이터 vector db 로 임베딩 하기 
     # 임베딩 모델 및 vector db 반환 
     embedding_model = OpenAIEmbeddings(model='text-embedding-ada-002')
+    
+    # vector_db = db_from_deeplake(docs, embedding_model)
     vector_db = db_from_pinecone(docs, embedding_model)
     
     # 5. QA 를 위한 retriever 및 qa 세팅 하기 
