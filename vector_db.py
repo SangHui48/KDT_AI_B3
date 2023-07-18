@@ -15,8 +15,12 @@ def db_from_pinecone(docs, embeddings):
         environment= os.getenv("PINECONE_ENV")  
     )
     index_name = os.getenv("PINECONE_INDEX_NAME") 
+    
+    # pinecone vector 삭제
+    index = pinecone.Index(index_name)
+    index.delete(deleteAll='true')
     vectorstore = Pinecone.from_documents(docs, embeddings, index_name=index_name)
- 
+
     return vectorstore
 
 def db_from_deeplake(docs, embeddings):
