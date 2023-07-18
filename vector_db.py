@@ -15,6 +15,8 @@ def db_from_pinecone(docs, embeddings):
         environment= os.getenv("PINECONE_ENV")  
     )
     index_name = os.getenv("PINECONE_INDEX_NAME") 
+    
+    pinecone.delete_index(index_name) # pinecone index 삭제
     vectorstore = Pinecone.from_documents(docs, embeddings, index_name=index_name)
  
     return vectorstore
